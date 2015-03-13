@@ -1,0 +1,21 @@
+{
+  "name": "doodle",
+  "version": "1.0.0",
+  "description": "Compositional drawing for Javascript",
+  "main": "dist/node/main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Dave Gurnell",
+  "license": "Apache 2",
+  "devDependencies": {
+    "babel-core": "^4.7.3",
+    "babel-loader": "^4.1.0",
+    "babelify": "^5.0.4",
+    "webpack": "^1.7.2"
+  },
+  "dependencies": {
+    "q": "^1.2.0",
+    "underscore": "^1.8.2"
+  }
+}

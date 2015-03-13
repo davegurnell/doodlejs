@@ -1,0 +1,20 @@
+{
+  "folders": [
+    {
+      "path": ".",
+      "folder_exclude_patterns": [
+        ".git"
+      , "dist"
+      , "temp"
+      , "node_modules"
+      , "bower_components"
+      , "/Users/dave/dev/projects/cartographer/ui/vendor"
+      , "/Users/dave/dev/projects/cartographer/ui/vendor.old"
+      ],
+      "file_exclude_patterns": [
+        "*.generated.coffee"
+      , "package.json"
+      ]
+    }
+  ]
+}
