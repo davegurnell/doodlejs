@@ -1,5 +1,5 @@
 {
-  "name": "doodle",
+  "name": "doodlejs",
   "version": "1.0.0",
   "description": "Compositional drawing for Javascript",
   "main": "dist/node/main.js",
@@ -12,6 +12,8 @@
     "babel-core": "^4.7.3",
     "babel-loader": "^4.1.0",
     "babelify": "^5.0.4",
+    "codemirror": "^5.0.0",
+    "jquery": "^2.1.3",
     "webpack": "^1.7.2"
   },
   "dependencies": {

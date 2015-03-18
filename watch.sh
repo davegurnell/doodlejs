@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 
-mkdir -p ./dist/browser
-watchify --require ./src/main.js:doodle --outfile dist/browser/main.js --transform babelify --debug --debug
+mkdir -p ./dist
+watchify --require ./src/index.js:doodle --require ./src/demo.js:demo --outfile dist/demo.js  --transform babelify --debug

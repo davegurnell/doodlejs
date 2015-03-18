@@ -2,8 +2,6 @@
 
 npm install
 
-mkdir -p ./dist/node
-babel -d ./src ./dist/node
-
-mkdir -p ./dist/browser
-browserify --require ./src/main.js:doodle --outfile dist/browser/main.js --transform babelify --debug
+mkdir -p ./dist
+browserify --require ./src/index.js:doodle --outfile dist/index.js --transform babelify
+browserify --require ./src/index.js:doodle --require ./src/demo.js:demo --outfile dist/demo.js  --transform babelify

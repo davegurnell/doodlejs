@@ -2,18 +2,56 @@
 <html>
 <head>
   <title>Doodle</title>
+  <link rel="stylesheet" href="node_modules/codemirror/lib/codemirror.css">
+  <link rel="stylesheet" href="node_modules/codemirror/theme/monokai.css">
   <style>
-    canvas {
-      background: #eee;
+    html,body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      background: #222;
+    }
+    #textarea {
+      display: none;
+    }
+    .CodeMirror {
+      display: block;
+      position: absolute;
+      top: 0;
+      left: -1px;
+      bottom: 0;
+      width: 50%;
+      height: 100%;
+      font-family: PragmataPro, Menlo, Monaco, monospace !important;
+      font-size: 30px !important;
+      border-right: 1px solid #333;
+      background: transparent !important;
+    }
+    .CodeMirror,
+    .CodeMirror-gutters {
+      background: transparent !important;
+    }
+    #canvas {
+      display: block;
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      width: 50%;
+      height: 100%;
+      background: transparent;
     }
   </style>
 </head>
 <body>
-  <h1>Doodle</h1>
-  <canvas id="canvas" width="500" height="500"></canvas>
-  <script src="dist/main.js"></script>
+  <textarea id="textarea">// Doodle (Cmd+Enter to Draw)</textarea>
+  <canvas id="canvas"></canvas>
+  <script src="dist/demo.js"></script>
   <script>
-  var doodle = require('doodle');
+  require('demo').init(
+    document.getElementById('textarea'),
+    document.getElementById('canvas')
+  );
   </script>
 </body>
 </html>

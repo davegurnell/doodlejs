@@ -1,5 +1,16 @@
-import { Vec } from './math';
-import * as image from './image';
+import {
+  Vec
+} from './math';
+
+import {
+  Circle,
+  Rectangle,
+  Triangle,
+  Overlay,
+  Beside,
+  Above,
+  StyleTransform
+} from './image';
 
 export class BoundingBox {
   constructor(top = 0, right = 0, bottom = 0, left = 0) {
@@ -63,36 +74,24 @@ export class BoundingBox {
     }
   }
 
-  static forImage(img) {
-    return BoundingBox._forImage(img);
-  }
-
-  static _forImage(img) {
-    // if(img instanceof image.Path) {
-    //   return BoundingBox.fromPoints(
-    //     _.chain(img.elements)
-    //      .map(elem => elem.points())
-    //      .flatten()
-    //      .value()
-    //   );
-    // } else
-    if(img instanceof image.Circle) {
-      let r = img.radius;
+  static forImage(image) {
+    if(image instanceof Circle) {
+      let r = image.radius;
       return new BoundingBox(-r, r, r, -r);
 
-    } else if(img instanceof image.Rectangle) {
-      let w = img.width;
-      let h = img.height;
+    } else if(image instanceof Rectangle) {
+      let w = image.width;
+      let h = image.height;
       return new BoundingBox(-h/2, w/2, h/2, -w/2);
 
-    } else if(img instanceof image.Triangle) {
-      let w = img.width;
-      let h = img.height;
+    } else if(image instanceof Triangle) {
+      let w = image.width;
+      let h = image.height;
       return new BoundingBox(-h/2, w/2, h/2, -w/2);
 
-    } else if(img instanceof image.Overlay) {
-      let tb = BoundingBox.forImage(img.top);
-      let bb = BoundingBox.forImage(img.bottom);
+    } else if(image instanceof Overlay) {
+      let tb = BoundingBox.forImage(image.top);
+      let bb = BoundingBox.forImage(image.bottom);
       return new BoundingBox(
         Math.min(tb.top, bb.top),
         Math.max(tb.right, bb.right),
@@ -100,9 +99,9 @@ export class BoundingBox {
         Math.min(tb.left, bb.left)
       );
 
-    } else if(img instanceof image.Beside) {
-      let lb = BoundingBox.forImage(img.left);
-      let rb = BoundingBox.forImage(img.right);
+    } else if(image instanceof Beside) {
+      let lb = BoundingBox.forImage(image.left);
+      let rb = BoundingBox.forImage(image.right);
       return new BoundingBox(
         Math.min(lb.top, rb.top),
         +0.5 * (lb.width + rb.width),
@@ -110,9 +109,9 @@ export class BoundingBox {
         -0.5 * (lb.width + rb.width)
       );
 
-    } else if(img instanceof image.Above) {
-      let tb = BoundingBox.forImage(img.top);
-      let bb = BoundingBox.forImage(img.bottom);
+    } else if(image instanceof Above) {
+      let tb = BoundingBox.forImage(image.top);
+      let bb = BoundingBox.forImage(image.bottom);
       return new BoundingBox(
         -0.5 * (tb.height + bb.height),
         Math.max(tb.right, bb.right),
@@ -120,19 +119,11 @@ export class BoundingBox {
         Math.min(tb.left, bb.left)
       );
 
-    // } else if(img instanceof image.At) {
-    //   let point = img.point;
-    //   let child = img.image;
-    //   return BoundingBox.forImage(child).translate(point);
-
-    // } else if(img instanceof image.ContextTransform) {
-    //   return BoundingBox.forImage(img.child);
-
-    // } else if(img instanceof image.Drawable) {
-    //   return BoundingBox.forImage(img.draw());
+    } else if(image instanceof StyleTransform) {
+      return BoundingBox.forImage(image.image);
 
     } else {
-      throw new Error("BoundingBox.forImage(): image type not recognised: " + img);
+      throw new Error("BoundingBox.forImage(): image type not recognised: " + image);
     }
   }
 }

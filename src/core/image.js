@@ -6,13 +6,19 @@ export class Image {
   below(that)  { return new Above(that, this); }
   on(that)     { return new Overlay(this, that); }
   under(that)  { return new Overlay(that, this); }
-}
 
-// export class Path extends Image {
-//   constructor(elements) {
-//     this.elements = elements;
-//   }
-// }
+  styled(style) {
+    if(typeof style == 'function') {
+      return new StyleTransform(this, style);
+    } else {
+      return new StyleTransform(this, s => _.extend({}, s, style));
+    }
+  }
+
+  strokeStyle(value) { return this.styled({ strokeStyle : value }); }
+  fillStyle(value)   { return this.styled({ fillStyle   : value }); }
+  lineWidth(value)   { return this.styled({ lineWidth   : value }); }
+}
 
 export class Circle extends Image {
   constructor(radius) {
@@ -22,57 +28,57 @@ export class Circle extends Image {
 
 export class Rectangle extends Image {
   constructor(width, height) {
-    this.width = width;
+    this.width  = width;
     this.height = height;
   }
 }
 
 export class Triangle extends Image {
   constructor(width, height) {
-    this.width = width;
+    this.width  = width;
     this.height = height;
   }
 }
 
 export class Beside extends Image {
   constructor(left, right) {
-    this.left = left;
+    this.left  = left;
     this.right = right;
   }
 }
 
 export class Above extends Image {
   constructor(top, bottom) {
-    this.top = top;
+    this.top    = top;
     this.bottom = bottom;
   }
 }
 
 export class Overlay extends Image {
   constructor(top, bottom) {
-    this.top = top;
+    this.top    = top;
     this.bottom = bottom;
   }
 }
 
-// export class ContextTransform extends Image {
-//   // (Context -> Context) Image -> ContextTransform
-//   constructor(transform, image) {
-//     this.transform = transform;
-//     this.image = image;
-//   }
-// }
+export class StyleTransform extends Image {
+  constructor(image, transform) {
+    this.image     = image;
+    this.transform = transform;
+  }
+}
 
-// export class Drawable extends Image {
-//   draw() {
-//     return new Error("Implement me!");
-//   }
-// }
+export function circle(radius) {
+  return new Circle(radius);
+}
 
-// export function path(elements) { return new Path(elements); }
-export function circle(radius) { return new Circle(radius); }
-export function rectangle(width, height) { return new Rectangle(width, height); }
-export function triangle(width, height) { return new Triangle(width, height); }
+export function rectangle(width, height) {
+  return new Rectangle(width, height);
+}
+
+export function triangle(width, height) {
+  return new Triangle(width, height);
+}
 
 function createExpression(createPair) {
   return function(a, ...b) {
