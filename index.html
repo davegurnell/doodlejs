@@ -9,7 +9,7 @@
       height: 100%;
       margin: 0;
       padding: 0;
-      background: #222;
+      background: #111;
     }
     #textarea {
       display: none;
@@ -25,7 +25,6 @@
       font-family: PragmataPro, Menlo, Monaco, monospace !important;
       font-size: 30px !important;
       border-right: 1px solid #333;
-      background: transparent !important;
     }
     .CodeMirror,
     .CodeMirror-gutters {
@@ -44,14 +43,19 @@
   </style>
 </head>
 <body>
-  <textarea id="textarea">// Doodle (Cmd+Enter to Draw)</textarea>
+  <textarea id="textarea">// Doodle (Cmd+Enter to Draw)
+
+var house = triangle(100, 50).
+  above(rectangle(80, 80))
+
+draw(house);</textarea>
   <canvas id="canvas"></canvas>
   <script src="dist/demo.js"></script>
   <script>
-  require('demo').init(
-    document.getElementById('textarea'),
-    document.getElementById('canvas')
-  );
+    require('demo').init(
+      document.getElementById('textarea'),
+      document.getElementById('canvas')
+    );
   </script>
 </body>
 </html>

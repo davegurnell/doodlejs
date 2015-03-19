@@ -1,3 +1,4 @@
+import _ from 'underscore';
 import $ from 'jquery';
 
 import CodeMirror   from 'codemirror/lib/codemirror';
@@ -29,23 +30,25 @@ function stripMargin(text) {
 function wrapScript(canvasId, code) {
   return `
     (function() {
-      var doodle    = require('doodle');
-      var Image     = doodle.image.Image;
-      var Circle    = doodle.image.Circle;
-      var Rectangle = doodle.image.Rectangle;
-      var Triangle  = doodle.image.Triangle;
-      var Above     = doodle.image.Above;
-      var Beside    = doodle.image.Beside;
-      var Overlay   = doodle.image.Overlay;
+      var _              = require('underscore');
+      var doodle         = require('doodle');
+      var Image          = doodle.image.Image;
+      var Circle         = doodle.image.Circle;
+      var Rectangle      = doodle.image.Rectangle;
+      var Triangle       = doodle.image.Triangle;
+      var Above          = doodle.image.Above;
+      var Beside         = doodle.image.Beside;
+      var Overlay        = doodle.image.Overlay;
+      var StyleTransform = doodle.image.StyleTransform;
 
-      var circle    = doodle.image.circle;
-      var rectangle = doodle.image.rectangle;
-      var triangle  = doodle.image.triangle;
-      var above     = doodle.image.above;
-      var below     = doodle.image.below;
-      var beside    = doodle.image.beside;
-      var on        = doodle.image.on;
-      var under     = doodle.image.under;
+      var circle         = doodle.image.circle;
+      var rectangle      = doodle.image.rectangle;
+      var triangle       = doodle.image.triangle;
+      var above          = doodle.image.above;
+      var below          = doodle.image.below;
+      var beside         = doodle.image.beside;
+      var on             = doodle.image.on;
+      var under          = doodle.image.under;
 
       function draw(img) {
         doodle.canvas.defaultStyle.strokeStyle = 'white';
@@ -92,10 +95,9 @@ export function init(textarea, canvas) {
     let wrappedCode = wrapScript(canvasId, code);
     try {
       eval(wrappedCode);
-    } catch(e) {
-      console.log(e);
+    } finally {
+      editor.refresh();
     }
-    editor.refresh();
   }
 
   editor.setOption('extraKeys', {
