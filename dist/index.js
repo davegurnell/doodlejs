@@ -1543,6 +1543,10 @@ var _createClass = (function () { function defineProperties(target, props) { for
 
 var _classCallCheck = function (instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } };
 
+// Calculates an axis aligned bounding box centered on `image`.
+//
+// Image -> BoundingBox
+exports.boundingBox = boundingBox;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
@@ -1560,6 +1564,8 @@ var Above = _image.Above;
 var StyleTransform = _image.StyleTransform;
 
 var BoundingBox = exports.BoundingBox = (function () {
+  // Number Number Number Number -> BoundingBox
+
   function BoundingBox() {
     var top = arguments[0] === undefined ? 0 : arguments[0];
     var right = arguments[1] === undefined ? 0 : arguments[1];
@@ -1576,84 +1582,43 @@ var BoundingBox = exports.BoundingBox = (function () {
 
   _createClass(BoundingBox, {
     center: {
+
+      // -> Vec
+
       get: function () {
         return new Vec(0.5 * (this.left + this.right), 0.5 * (this.top + this.bottom));
       }
     },
     width: {
+
+      // -> Number
+
       get: function () {
         return this.right - this.left;
       }
     },
     height: {
+
+      // -> Number
+
       get: function () {
         return this.bottom - this.top;
       }
     },
     size: {
+
+      // -> Vec
+
       get: function () {
         return new Vec(this.width, this.height);
       }
     },
-    expand: {
-      value: function expand(vec) {
-        return new BoundingBox(Math.min(top, vec.y), Math.max(right, vec.x), Math.max(bottom, vec.y), Math.min(left, vec.x));
-      }
-    },
     translate: {
+
+      // Vec -> BoundingBox
+
       value: function translate(vec) {
         return new BoundingBox(this.top + vec.y, this.right + vec.x, this.bottom + vec.y, this.left + vec.x);
-      }
-    }
-  }, {
-    fromPoint: {
-      value: function fromPoint(vec) {
-        return new BoundingBox(vec.y, vec.x, vec.y, vec.x);
-      }
-    },
-    fromPoints: {
-      value: function fromPoints(vecs) {
-        if (vecs.length == 0) {
-          return BoundingBox.fromPoint(new Vec(0, 0));
-        } else {
-          var ans = BoundingBox.fromPoint(vecs[0]);
-          for (var i = 1; i < vecs.length; i++) {
-            ans = ans.expand(vecs[i]);
-          }
-          return ans;
-        }
-      }
-    },
-    forImage: {
-      value: function forImage(image) {
-        if (image instanceof Circle) {
-          var r = image.radius;
-          return new BoundingBox(-r, r, r, -r);
-        } else if (image instanceof Rectangle) {
-          var w = image.width;
-          var h = image.height;
-          return new BoundingBox(-h / 2, w / 2, h / 2, -w / 2);
-        } else if (image instanceof Triangle) {
-          var w = image.width;
-          var h = image.height;
-          return new BoundingBox(-h / 2, w / 2, h / 2, -w / 2);
-        } else if (image instanceof Overlay) {
-          var tb = BoundingBox.forImage(image.top);
-          var bb = BoundingBox.forImage(image.bottom);
-          return new BoundingBox(Math.min(tb.top, bb.top), Math.max(tb.right, bb.right), Math.max(tb.bottom, bb.bottom), Math.min(tb.left, bb.left));
-        } else if (image instanceof Beside) {
-          var lb = BoundingBox.forImage(image.left);
-          var rb = BoundingBox.forImage(image.right);
-          return new BoundingBox(Math.min(lb.top, rb.top), +0.5 * (lb.width + rb.width), Math.max(lb.bottom, rb.bottom), -0.5 * (lb.width + rb.width));
-        } else if (image instanceof Above) {
-          var tb = BoundingBox.forImage(image.top);
-          var bb = BoundingBox.forImage(image.bottom);
-          return new BoundingBox(-0.5 * (tb.height + bb.height), Math.max(tb.right, bb.right), +0.5 * (tb.height + bb.height), Math.min(tb.left, bb.left));
-        } else if (image instanceof StyleTransform) {
-          return BoundingBox.forImage(image.image);
-        } else {
-          throw new Error("BoundingBox.forImage(): image type not recognised: " + image);
-        }
       }
     }
   });
@@ -1661,11 +1626,53 @@ var BoundingBox = exports.BoundingBox = (function () {
   return BoundingBox;
 })();
 
-},{"./image":4,"./math":5}],3:[function(require,module,exports){
+function boundingBox(_x) {
+  var _again = true;
+
+  _function: while (_again) {
+    _again = false;
+    var image = _x;
+    r = w = h = w = h = tb = bb = lb = rb = tb = bb = undefined;
+
+    if (image instanceof Circle) {
+      var r = image.radius;
+      return new BoundingBox(-r, r, r, -r);
+    } else if (image instanceof Rectangle) {
+      var w = image.width;
+      var h = image.height;
+      return new BoundingBox(-h / 2, w / 2, h / 2, -w / 2);
+    } else if (image instanceof Triangle) {
+      var w = image.width;
+      var h = image.height;
+      return new BoundingBox(-h / 2, w / 2, h / 2, -w / 2);
+    } else if (image instanceof Above) {
+      var tb = boundingBox(image.top);
+      var bb = boundingBox(image.bottom);
+      return new BoundingBox(-0.5 * (tb.height + bb.height), Math.max(tb.right, bb.right), +0.5 * (tb.height + bb.height), Math.min(tb.left, bb.left));
+    } else if (image instanceof Beside) {
+      var lb = boundingBox(image.left);
+      var rb = boundingBox(image.right);
+      return new BoundingBox(Math.min(lb.top, rb.top), +0.5 * (lb.width + rb.width), Math.max(lb.bottom, rb.bottom), -0.5 * (lb.width + rb.width));
+    } else if (image instanceof Overlay) {
+      var tb = boundingBox(image.top);
+      var bb = boundingBox(image.bottom);
+      return new BoundingBox(Math.min(tb.top, bb.top), Math.max(tb.right, bb.right), Math.max(tb.bottom, bb.bottom), Math.min(tb.left, bb.left));
+    } else if (image instanceof StyleTransform) {
+      _x = image.image;
+      _again = true;
+      continue _function;
+    } else {
+      throw new Error("boundingBox(): image type not recognised: " + image);
+    }
+  }
+}
+
+},{"./image":6,"./math":7}],3:[function(require,module,exports){
 "use strict";
 
 var _interopRequire = function (obj) { return obj && obj.__esModule ? obj["default"] : obj; };
 
+// CanvasContext Image Number -> Void
 exports.draw = draw;
 Object.defineProperty(exports, "__esModule", {
   value: true
@@ -1685,15 +1692,14 @@ var Beside = _image.Beside;
 var Above = _image.Above;
 var StyleTransform = _image.StyleTransform;
 
-var BoundingBox = require("./bounds").BoundingBox;
+var boundingBox = require("./bounds").boundingBox;
 
+// Styles
 var defaultStyle = {
   strokeStyle: "black", // or(string null)
   fillStyle: null, // or(string null)
   lineWidth: 1 // or(string number null)
-};
-
-exports.defaultStyle = defaultStyle;
+};exports.defaultStyle = defaultStyle;
 
 function draw(ctx, image) {
   var margin = arguments[2] === undefined ? 10 : arguments[2];
@@ -1704,7 +1710,7 @@ function draw(ctx, image) {
     ctx = ctx.getContext("2d");
   }
 
-  var bounds = BoundingBox.forImage(image);
+  var bounds = boundingBox(image);
   var style = _.extend({}, defaultStyle);
 
   var scale = Math.min((ctx.canvas.width - 2 * margin) / bounds.width, (ctx.canvas.height - 2 * margin) / bounds.height);
@@ -1722,57 +1728,40 @@ function draw(ctx, image) {
   drawImage(ctx, bounds, style, image);
 }
 
+// CanvasContext BoundingBox Styles Image -> Void
 function drawImage(ctx, bounds, style, image) {
   if (image instanceof Circle) {
-    var r = image.radius;
     var origin = bounds.center;
+    var radius = image.radius;
 
     ctx.beginPath();
-    ctx.arc(origin.x, origin.y, r, 0, Math.PI * 2);
+    ctx.arc(origin.x, origin.y, radius, 0, Math.PI * 2);
     ctx.closePath();
     strokeAndFill(ctx, style);
   } else if (image instanceof Rectangle) {
-    var w = image.width;
-    var h = image.height;
     var origin = bounds.center;
+    var width = image.width;
+    var height = image.height;
 
     ctx.beginPath();
-    ctx.rect(origin.x - w / 2, origin.y - h / 2, w, h);
+    ctx.rect(origin.x - width / 2, origin.y - height / 2, width, height);
     ctx.closePath();
     strokeAndFill(ctx, style);
   } else if (image instanceof Triangle) {
-    var w = image.width;
-    var h = image.height;
     var origin = bounds.center;
+    var width = image.width;
+    var height = image.height;
 
     ctx.beginPath();
-    ctx.moveTo(origin.x, origin.y - h / 2);
-    ctx.lineTo(origin.x + w / 2, origin.y + h / 2);
-    ctx.lineTo(origin.x - w / 2, origin.y + h / 2);
+    ctx.moveTo(origin.x, origin.y - height / 2);
+    ctx.lineTo(origin.x + width / 2, origin.y + height / 2);
+    ctx.lineTo(origin.x - width / 2, origin.y + height / 2);
     ctx.closePath();
     strokeAndFill(ctx, style);
-  } else if (image instanceof Overlay) {
-    var origin = bounds.center;
-    var tBounds = BoundingBox.forImage(image.top);
-    var bBounds = BoundingBox.forImage(image.bottom);
-
-    drawImage(ctx, bBounds.translate(origin), style, image.bottom);
-    drawImage(ctx, tBounds.translate(origin), style, image.top);
-  } else if (image instanceof Beside) {
-    var iBounds = BoundingBox.forImage(image);
-    var lBounds = BoundingBox.forImage(image.left);
-    var rBounds = BoundingBox.forImage(image.right);
-
-    var origin = bounds.center;
-    var lOrigin = origin.add(Vec.xy(iBounds.left + 0.5 * lBounds.width, 0));
-    var rOrigin = origin.add(Vec.xy(iBounds.right - 0.5 * rBounds.width, 0));
-
-    drawImage(ctx, lBounds.translate(lOrigin), style, image.left);
-    drawImage(ctx, rBounds.translate(rOrigin), style, image.right);
   } else if (image instanceof Above) {
-    var iBounds = BoundingBox.forImage(image);
-    var tBounds = BoundingBox.forImage(image.top);
-    var bBounds = BoundingBox.forImage(image.bottom);
+    var iBounds = boundingBox(image);
+    var tBounds = boundingBox(image.top);
+    var bBounds = boundingBox(image.bottom);
 
     var origin = bounds.center;
     var tOrigin = origin.add(Vec.xy(0, iBounds.top + 0.5 * tBounds.height));
@@ -1780,21 +1769,46 @@ function drawImage(ctx, bounds, style, image) {
 
     drawImage(ctx, tBounds.translate(tOrigin), style, image.top);
     drawImage(ctx, bBounds.translate(bOrigin), style, image.bottom);
+  } else if (image instanceof Beside) {
+    var iBounds = boundingBox(image);
+    var lBounds = boundingBox(image.left);
+    var rBounds = boundingBox(image.right);
+
+    var origin = bounds.center;
+    var lOrigin = origin.add(Vec.xy(iBounds.left + 0.5 * lBounds.width, 0));
+    var rOrigin = origin.add(Vec.xy(iBounds.right - 0.5 * rBounds.width, 0));
+
+    drawImage(ctx, lBounds.translate(lOrigin), style, image.left);
+    drawImage(ctx, rBounds.translate(rOrigin), style, image.right);
+  } else if (image instanceof Overlay) {
+    var origin = bounds.center;
+    var tBounds = boundingBox(image.top);
+    var bBounds = boundingBox(image.bottom);
+
+    drawImage(ctx, bBounds.translate(origin), style, image.bottom);
+    drawImage(ctx, tBounds.translate(origin), style, image.top);
   } else if (image instanceof StyleTransform) {
-    drawImage(ctx, bounds, image.transform(style), image.image);
+    var child = image.image;
+    var func = image.transform;
+
+    style = _.extend({}, style);
+
+    drawImage(ctx, bounds, func(style), child);
   } else {
     throw new Error("drawImage(): image not recognised: " + image);
   }
 }
 
+// CanvasContext Style -> Void
 function strokeAndFill(ctx, style) {
-  function chooseStyle(value, orElse) {
-    return value == null ? orElse : value;
+  // String -> Any
+  function chooseStyle(key) {
+    return style[key] == null ? defaultStyle[key] : style[key];
   }
 
-  var strokeStyle = ctx.strokeStyle = chooseStyle(style.strokeStyle, defaultStyle.strokeStyle);
-  var fillStyle = ctx.fillStyle = chooseStyle(style.fillStyle, defaultStyle.fillStyle);
-  var lineWidth = ctx.lineWidth = chooseStyle(style.lineWidth, defaultStyle.lineWidth);
+  var strokeStyle = ctx.strokeStyle = chooseStyle("strokeStyle");
+  var fillStyle = ctx.fillStyle = chooseStyle("fillStyle");
+  var lineWidth = ctx.lineWidth = chooseStyle("lineWidth");
 
   if (strokeStyle && lineWidth) {
     ctx.stroke();
@@ -1805,7 +1819,7 @@ function strokeAndFill(ctx, style) {
   }
 }
 
-},{"./bounds":2,"./image":4,"./math":5,"underscore":1}],4:[function(require,module,exports){
+},{"./bounds":2,"./image":6,"./math":7,"underscore":1}],4:[function(require,module,exports){
 "use strict";
 
 var _interopRequire = function (obj) { return obj && obj.__esModule ? obj["default"] : obj; };
@@ -1816,9 +1830,6 @@ var _createClass = (function () { function defineProperties(target, props) { for
 
 var _classCallCheck = function (instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } };
 
-exports.circle = circle;
-exports.rectangle = rectangle;
-exports.triangle = triangle;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
@@ -1832,6 +1843,8 @@ var Image = exports.Image = (function () {
 
   _createClass(Image, {
     beside: {
+      // Image -> Image
+
       value: function beside(that) {
         return new Beside(this, that);
       }
@@ -1857,29 +1870,45 @@ var Image = exports.Image = (function () {
       }
     },
     styled: {
+
+      // PartialStyle -> Image
+
       value: function styled(style) {
-        if (typeof style == "function") {
-          return new StyleTransform(this, style);
-        } else {
-          return new StyleTransform(this, function (s) {
-            return _.extend({}, s, style);
-          });
-        }
+        return new StyleTransform(this, function (s) {
+          return _.extend(s, style);
+        });
       }
     },
-    strokeStyle: {
-      value: function strokeStyle(value) {
-        return this.styled({ strokeStyle: value });
-      }
-    },
-    fillStyle: {
-      value: function fillStyle(value) {
+    fill: {
+
+      // String -> Image
+
+      value: function fill(value) {
         return this.styled({ fillStyle: value });
       }
     },
-    lineWidth: {
-      value: function lineWidth(value) {
-        return this.styled({ lineWidth: value });
+    noFill: {
+
+      // -> Image
+
+      value: function noFill() {
+        return this.styled({ fillStyle: "transparent" });
+      }
+    },
+    stroke: {
+
+      // Or(String, Number) String -> Image
+
+      value: function stroke(width, color) {
+        return this.styled({ lineWidth: width, strokeStyle: color });
+      }
+    },
+    noStroke: {
+
+      // -> Image
+
+      value: function noStroke() {
+        return this.styled({ lineWidth: 0 });
       }
     }
   });
@@ -1888,6 +1917,8 @@ var Image = exports.Image = (function () {
 })();
 
 var Circle = exports.Circle = (function (_Image) {
+  // Number -> Image
+
   function Circle(radius) {
     _classCallCheck(this, Circle);
 
@@ -1900,6 +1931,8 @@ var Circle = exports.Circle = (function (_Image) {
 })(Image);
 
 var Rectangle = exports.Rectangle = (function (_Image2) {
+  // Number Number -> Image
+
   function Rectangle(width, height) {
     _classCallCheck(this, Rectangle);
 
@@ -1913,6 +1946,8 @@ var Rectangle = exports.Rectangle = (function (_Image2) {
 })(Image);
 
 var Triangle = exports.Triangle = (function (_Image3) {
+  // Number Number -> Image
+
   function Triangle(width, height) {
     _classCallCheck(this, Triangle);
 
@@ -1926,6 +1961,8 @@ var Triangle = exports.Triangle = (function (_Image3) {
 })(Image);
 
 var Beside = exports.Beside = (function (_Image4) {
+  // Image Image -> Image
+
   function Beside(left, right) {
     _classCallCheck(this, Beside);
 
@@ -1939,6 +1976,8 @@ var Beside = exports.Beside = (function (_Image4) {
 })(Image);
 
 var Above = exports.Above = (function (_Image5) {
+  // Image Image -> Image
+
   function Above(top, bottom) {
     _classCallCheck(this, Above);
 
@@ -1952,6 +1991,8 @@ var Above = exports.Above = (function (_Image5) {
 })(Image);
 
 var Overlay = exports.Overlay = (function (_Image6) {
+  // Image Image -> Image
+
   function Overlay(top, bottom) {
     _classCallCheck(this, Overlay);
 
@@ -1965,6 +2006,8 @@ var Overlay = exports.Overlay = (function (_Image6) {
 })(Image);
 
 var StyleTransform = exports.StyleTransform = (function (_Image7) {
+  // Image (Style -> Style) -> Image
+
   function StyleTransform(image, transform) {
     _classCallCheck(this, StyleTransform);
 
@@ -1976,6 +2019,29 @@ var StyleTransform = exports.StyleTransform = (function (_Image7) {
 
   return StyleTransform;
 })(Image);
+
+},{"underscore":1}],5:[function(require,module,exports){
+"use strict";
+
+var _interopRequire = function (obj) { return obj && obj.__esModule ? obj["default"] : obj; };
+
+exports.circle = circle;
+exports.rectangle = rectangle;
+exports.triangle = triangle;
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _ = _interopRequire(require("underscore"));
+
+var _imageAstJs = require("./image-ast.js");
+
+var Circle = _imageAstJs.Circle;
+var Rectangle = _imageAstJs.Rectangle;
+var Triangle = _imageAstJs.Triangle;
+var Beside = _imageAstJs.Beside;
+var Above = _imageAstJs.Above;
+var Overlay = _imageAstJs.Overlay;
 
 function circle(radius) {
   return new Circle(radius);
@@ -2021,7 +2087,35 @@ var under = createExpression(function (a, b) {
 });
 exports.under = under;
 
-},{"underscore":1}],5:[function(require,module,exports){
+},{"./image-ast.js":4,"underscore":1}],6:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _imageAstJs = require("./image-ast.js");
+
+exports.Circle = _imageAstJs.Circle;
+exports.Rectangle = _imageAstJs.Rectangle;
+exports.Triangle = _imageAstJs.Triangle;
+exports.Beside = _imageAstJs.Beside;
+exports.Above = _imageAstJs.Above;
+exports.Overlay = _imageAstJs.Overlay;
+exports.StyleTransform = _imageAstJs.StyleTransform;
+
+var _imageHelpersJs = require("./image-helpers.js");
+
+exports.circle = _imageHelpersJs.circle;
+exports.rectangle = _imageHelpersJs.rectangle;
+exports.triangle = _imageHelpersJs.triangle;
+exports.beside = _imageHelpersJs.beside;
+exports.above = _imageHelpersJs.above;
+exports.below = _imageHelpersJs.below;
+exports.on = _imageHelpersJs.on;
+exports.under = _imageHelpersJs.under;
+
+},{"./image-ast.js":4,"./image-helpers.js":5}],7:[function(require,module,exports){
 "use strict";
 
 var _createClass = (function () { function defineProperties(target, props) { for (var key in props) { var prop = props[key]; prop.configurable = true; if (prop.value) prop.writable = true; } Object.defineProperties(target, props); } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
@@ -2122,7 +2216,7 @@ var Vec = exports.Vec = (function () {
   return Vec;
 })();
 
-},{}],6:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 "use strict";
 
 var _interopRequire = function (obj) { return obj && obj.__esModule ? obj["default"] : obj; };
@@ -2132,8 +2226,9 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.layout = _interopRequire(require("./layout"));
 exports.sierpinski = _interopRequire(require("./sierpinski"));
+exports.rainbow = _interopRequire(require("./rainbow"));
 
-},{"./layout":7,"./sierpinski":8}],7:[function(require,module,exports){
+},{"./layout":9,"./rainbow":10,"./sierpinski":11}],9:[function(require,module,exports){
 "use strict";
 
 var _coreImage = require("../core/image");
@@ -2147,7 +2242,30 @@ var t = triangle(20, 20);
 
 module.exports = beside(c.above(t), c.beside(t), c.below(t), t.beside(c), c.on(t), c.under(t));
 
-},{"../core/image":4}],8:[function(require,module,exports){
+},{"../core/image":6}],10:[function(require,module,exports){
+"use strict";
+
+module.exports = rainbow;
+
+var triangle = require("../core/image").triangle;
+
+function color(hue) {
+  return "hsl(" + hue + ", 100%, 50%)";
+}
+
+var tri = triangle(10, 10).noStroke();
+
+function rainbow(n) {
+  var hue = arguments[1] === undefined ? 0 : arguments[1];
+
+  if (n == 0) {
+    return tri.fill(color(hue));
+  } else {
+    return rainbow(n - 1, hue + 10).above(rainbow(n - 1, hue + 20).beside(rainbow(n - 1, hue + 30)));
+  }
+}
+
+},{"../core/image":6}],11:[function(require,module,exports){
 "use strict";
 
 module.exports = sierpinski;
@@ -2163,7 +2281,7 @@ function sierpinski(n) {
   }
 }
 
-},{"../core/image":4}],"doodle":[function(require,module,exports){
+},{"../core/image":6}],"doodle":[function(require,module,exports){
 "use strict";
 
 var _interopRequireWildcard = function (obj) { return obj && obj.__esModule ? obj : { "default": obj }; };
@@ -2188,4 +2306,4 @@ exports.bounds = bounds;
 exports.canvas = canvas;
 exports.examples = examples;
 
-},{"./core/bounds":2,"./core/canvas":3,"./core/image":4,"./core/math":5,"./examples":6}]},{},[]);
+},{"./core/bounds":2,"./core/canvas":3,"./core/image":6,"./core/math":7,"./examples":8}]},{},[]);

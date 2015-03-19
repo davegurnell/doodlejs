@@ -2,37 +2,15 @@ import _ from 'underscore';
 
 export class Image {
   // Image -> Image
-  beside(that) {
-    return new Beside(this, that);
-  }
-  
-  // Image -> Image
-  above(that) {
-    return new Above(this, that);
-  }
-  
-  // Image -> Image
-  below(that) {
-    return new Above(that, this);
-  }
-  
-  // Image -> Image
-  on(that) {
-    return new Overlay(this, that);
-  }
-  
-  // Image -> Image
-  under(that) {
-    return new Overlay(that, this);
-  }
+  beside(that) { return new Beside(this, that); }
+  above(that) { return new Above(this, that); }
+  below(that) { return new Above(that, this); }
+  on(that) { return new Overlay(this, that); }
+  under(that) { return new Overlay(that, this); }
 
   // PartialStyle -> Image
   styled(style) {
-    if(typeof style == 'function') {
-      return new StyleTransform(this, style);
-    } else {
-      return new StyleTransform(this, s => _.extend({}, s, style));
-    }
+    return new StyleTransform(this, s => _.extend(s, style));
   }
 
   // String -> Image
